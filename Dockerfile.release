@@ -16,6 +16,7 @@ FROM alpine:3.19
 LABEL maintainer="MinIO Inc <dev@min.io>"
 
 COPY --from=build /usr/bin/healthcheck /usr/bin/healthcheck
+COPY --from=build /usr/bin/minio /usr/bin/minio
 COPY dockerscripts/docker-entrypoint.sh /usr/bin/
 
 ENV MINIO_UPDATE off
@@ -24,9 +25,6 @@ ENV MINIO_ACCESS_KEY_FILE=access_key \
     MINIO_SSE_MASTER_KEY_FILE=sse_master_key
 
 RUN \
-     apk add --no-cache ca-certificates 'curl>7.61.0' 'su-exec>=0.2' && \
-     echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf && \
-     curl https://dl.min.io/server/minio/release/linux-amd64/minio > /usr/bin/minio && \
      chmod +x /usr/bin/minio  && \
      chmod +x /usr/bin/docker-entrypoint.sh && \
      chmod +x /usr/bin/healthcheck
@@ -40,3 +38,5 @@ VOLUME ["/data"]
 HEALTHCHECK --interval=1m CMD healthcheck
 
 CMD ["minio"]
+
+# docker build -f Dockerfile.release . -t kubef/minio:RELEASE.2019-08-14T20-37-41Z 
